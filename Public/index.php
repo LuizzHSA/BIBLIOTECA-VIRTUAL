@@ -80,8 +80,8 @@ if ($search !== '') {
                                 <td><?= htmlspecialchars($book['autor']) ?></td>
                                 <td><?= htmlspecialchars($book['ano']) ?></td>
                                 <td>
-                                    <a href="edit.php?id=<?= $index ?>" class="btn btn-sm btn-warning">Editar</a>
-                                    <a href="delete.php?id=<?= $index ?>" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este livro?')">Excluir</a>
+                                    <a href="editar.php?id=<?= $index ?>" class="btn btn-sm btn-warning">Editar</a>
+                                    <a href="excluir.php?id=<?= $index ?>" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este livro?')">Excluir</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

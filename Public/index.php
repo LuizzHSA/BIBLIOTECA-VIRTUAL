@@ -40,7 +40,7 @@ if ($search !== '') {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link active" href="index.php">Início</a></li>
-                <li class="nav-item"><a class="nav-link" href="create.php">Cadastrar Livro</a></li>
+                <li class="nav-item"><a class="nav-link" href="cadastro.php">Cadastrar Livro</a></li>
             </ul>
         </div>
     </div>

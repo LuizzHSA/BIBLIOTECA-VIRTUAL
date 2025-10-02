@@ -1,13 +1,19 @@
 <?php
+// Carregar dados do JSON
 $dataFile = 'data.json';
-$books = file_exists($dataFile) ? json_decode(file_get_contents($dataFile), true) : [];
+$books = [];
 
-// Filtro de pesquisa
-$search = $_GET['search'] ?? '';
-if ($search) {
-    $books = array_filter($books, function($book) use ($search) {
-        return stripos($book['title'], $search) !== false ||
-                stripos($book['author'], $search) !== false;
+if (file_exists($dataFile)) {
+    $books = json_decode(file_get_contents($dataFile), true);
+}
+
+// Filtrar pesquisa
+$search = isset($_GET['search']) ? strtolower(trim($_GET['search'])) : '';
+if ($search !== '') {
+    $books = array_filter($books, function ($book) use ($search) {
+        return strpos(strtolower($book['titulo']), $search) !== false ||
+                strpos(strtolower($book['autor']), $search) !== false ||
+                strpos(strtolower($book['ano']), $search) !== false;
     });
 }
 ?>
@@ -15,66 +21,88 @@ if ($search) {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Biblioteca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Biblioteca - CRUD</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="index.php">Biblioteca</a>
-        <div class="collapse navbar-collapse">
+        <a class="navbar-brand fw-bold" href="index.php">Biblioteca</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="create.php">Adicionar Livro</a></li>
+                <li class="nav-item"><a class="nav-link active" href="index.php">Início</a></li>
+                <li class="nav-item"><a class="nav-link" href="create.php">Cadastrar Livro</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- Conteúdo -->
-<div class="container mt-4 flex-grow-1">
-    <h1 class="mb-4">Lista de Livros</h1>
+<!-- Conteúdo principal -->
+<main class="flex-grow-1 d-flex justify-content-center align-items-start py-5">
+    <div class="container">
+        <div class="card shadow-lg p-4">
+            <h1 class="text-center mb-4">Lista de Livros</h1>
 
-    <!-- Form de Pesquisa -->
-    <form method="GET" class="mb-4 d-flex">
-        <input type="text" name="search" class="form-control me-2" placeholder="Pesquisar por título ou autor..." value="<?= htmlspecialchars($search) ?>">
-        <button type="submit" class="btn btn-outline-primary">Pesquisar</button>
-    </form>
+            <!-- Barra de pesquisa -->
+            <form method="GET" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Pesquisar por título, autor ou ano..." value="<?= htmlspecialchars($search) ?>">
+                    <button class="btn btn-primary" type="submit">Pesquisar</button>
+                    <a href="index.php" class="btn btn-secondary">Limpar</a>
+                </div>
+            </form>
 
-    <?php if (empty($books)): ?>
-        <div class="alert alert-info">Nenhum livro encontrado.</div>
-    <?php else: ?>
-        <table class="table table-striped table-hover shadow-sm">
-            <thead class="table-primary">
-            <tr>
-                <th>Título</th>
-                <th>Autor</th>
-                <th>Ano</th>
-                <th>Ações</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($books as $i => $book): ?>
-                <tr>
-                    <td><?= htmlspecialchars($book['title']) ?></td>
-                    <td><?= htmlspecialchars($book['author']) ?></td>
-                    <td><?= htmlspecialchars($book['year']) ?></td>
-                    <td>
-                        <a href="edit.php?id=<?= $i ?>" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="delete.php?id=<?= $i ?>" class="btn btn-sm btn-danger" onclick="return confirm('Excluir este livro?')">Excluir</a>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-</div>
+            <!-- Tabela de livros -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle text-center">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Ano</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php if (!empty($books)): ?>
+                        <?php foreach ($books as $index => $book): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($book['titulo']) ?></td>
+                                <td><?= htmlspecialchars($book['autor']) ?></td>
+                                <td><?= htmlspecialchars($book['ano']) ?></td>
+                                <td>
+                                    <a href="edit.php?id=<?= $index ?>" class="btn btn-sm btn-warning">Editar</a>
+                                    <a href="delete.php?id=<?= $index ?>" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este livro?')">Excluir</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Nenhum livro encontrado.</td>
+                        </tr>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
 
 <!-- Footer -->
-<footer class="bg-primary text-white text-center py-3 mt-auto">
-    <p class="mb-0">&copy; <?= date("Y") ?> Biblioteca - Todos os direitos reservados.</p>
+<footer class="bg-dark text-white text-center py-3 mt-auto">
+    <p class="mb-0">CRUD Biblioteca &copy; <?= date("Y") ?> - Desenvolvido em PHP + Bootstrap</p>
 </footer>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
